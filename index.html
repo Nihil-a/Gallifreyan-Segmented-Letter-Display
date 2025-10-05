@@ -97,6 +97,22 @@
     border-radius: 5px;
     font-weight: bold;
   }
+
+    .GitIcon {
+      position: fixed;        /* Fica fixo na tela */
+      bottom: 20px;           /* Distância da borda inferior */
+      right: 20px;            /* Distância da borda direita */
+      width: 60px;            /* Tamanho do ícone */
+      height: 60px;
+      cursor: pointer;        /* Mostra a “mãozinha” ao passar o mouse */
+      transition: transform 1s ease;
+    }
+
+    .GitIcon:hover
+    {
+      transform: scale(1.1);
+    }
+
 </style>
 </head>
 <body>
@@ -258,5 +274,9 @@ carregarSegmentos().then(() => {
   mostrarTexto(inputTexto.value, parseInt(inputIntervalo.value));
 });
 </script>
+
+  <a href="https://github.com/Nihil-a/Gallifreyan-Segmented-Letter-Display" target="_blank">
+    <img src="Image\github-white-icon.webp" alt="Ícone" class="GitIcon">
+  </a>
 </body>
 </html>
