@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<link rel="icon" type="image/png" href="Image\gsld-icon.png">
+
 <meta charset="UTF-8">
-<title>Gallifreyan Segment Letter Display</title>
+<title>GSLD</title>
 <style>
   body {
     margin: 0;
@@ -102,8 +104,8 @@
       position: fixed;        /* Fica fixo na tela */
       bottom: 20px;           /* Distância da borda inferior */
       right: 20px;            /* Distância da borda direita */
-      width: 60px;            /* Tamanho do ícone */
-      height: 60px;
+      width: 50px;            /* Tamanho do ícone */
+      height: 50px;
       cursor: pointer;        /* Mostra a “mãozinha” ao passar o mouse */
       transition: transform 1s ease;
     }
@@ -168,6 +170,8 @@ const mapaLetras = {
   Y: ["b1","b2","b3","s7","l4","s9","l5","s3","s4","s5","s6","d1","d4"],
   Z: ["b1","b2","b3","s7","l4","s9","l5","s3","s4","s5","s6","d1","d2","d3"],
   _: ["b1"],
+  0: ["v1","v2","v3","v4","v5","v6","v7","v8","v9","v10","v11","v12","v13","v14","b1","b2","b3","s1","s2","s3","s4","s5","s6","s7","s8","s9","s11","s12","l1","l2","l3","l4","l5","d1","d2","d3","d4"],
+
 };
 
 const todosSegmentos = [...new Set(Object.values(mapaLetras).flat())];
@@ -276,7 +280,7 @@ carregarSegmentos().then(() => {
 </script>
 
   <a href="https://github.com/Nihil-a/Gallifreyan-Segmented-Letter-Display" target="_blank">
-    <img src="Image\github-white-icon.webp" alt="Ícone" class="GitIcon">
+    <img src="Image\github-white-icon.webp"  alt="Ícone" class="GitIcon">
   </a>
 </body>
 </html>
