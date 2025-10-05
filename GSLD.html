@@ -33,7 +33,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.1;
+    opacity: 0.13;
     transition: opacity 0.3s, transform 0.3s, filter 0.3s;
     filter: invert(25%) sepia(100%) saturate(7000%) hue-rotate(0deg) brightness(100%) contrast(100%);
     transform: skewX(-8deg);
@@ -155,7 +155,7 @@ const mapaLetras = {
 };
 
 const todosSegmentos = [...new Set(Object.values(mapaLetras).flat())];
-const pastaSegmentos = "./Segmentos/";
+const pastaSegmentos = "./SVG/Segmentos/";
 const display = document.getElementById("display");
 let glowAtivo = false; // glow desligado por padrão
 let italicoAtivo = true;
