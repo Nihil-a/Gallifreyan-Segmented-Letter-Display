@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Gallifreyan Segment Letter Display</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    font-family: sans-serif;
+    color: white;
+  }
+
+  #displayWrapper {
+    width: 90%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 20px 0;
+    box-sizing: border-box;
+  }
+
+  #display {
+    display: inline-block;
+    min-width: max-content;
+  }
+
+  .letraContainer {
+    display: inline-block;
+    width: 320px;
+    height: 380px;
+    margin-right: 0px;
+    vertical-align: top;
+    position: relative;
+  }
+
+  .letraContainer svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.3s, transform 0.3s, filter 0.3s;
+    filter: invert(25%) sepia(100%) saturate(7000%) hue-rotate(0deg) brightness(100%) contrast(100%);
+  }
+
+  .letraContainer svg.ativo {
+    opacity: 1;
+  }
+
+  #config {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 100;
+    flex-wrap: wrap;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  #config.hidden {
+    transform: translateX(-120%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #config label {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+  }
+
+  #config input, #config button {
+    margin-top: 2px;
+  }
+
+  #config button {
+    cursor: pointer;
+    padding: 5px 10px;
+    background: white;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+
+  #btnToggleConfig {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 200;
+    cursor: pointer;
+    padding: 5px 10px;
+    background: white;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<button id="btnToggleConfig">Config</button>
+
+<div id="config" class="hidden">
+  <label>
+    Input:
+    <input type="text" id="inputTexto" value="GSLD">
+  </label>
+  <label>
+    Intervalo (ms):
+    <input type="number" id="inputIntervalo" value="500" min="50" step="50">
+  </label>
+  <label>
+    Cor:
+    <input type="color" id="inputCor" value="#ff0000">
+  </label>
+  <button id="btnGlow">Glow: OFF</button>
+  <button id="btnItalico">Itálico: ON</button>
+  <button id="btnMostrarApagados">Apagados: ON</button>
+  <button id="btnAplicar">Apply</button>
+</div>
+
+<div id="displayWrapper">
+  <div id="display"></div>
+</div>
+
+<script>
+// ---------------- MAPA DE LETRAS ----------------
+// Substitua pelo seu mapeamento completo
+const mapaLetras = {
+  A: ["v10","v4","v5","v6","b1","b2","b3"],
+  B: ["b2","s12","l2","s8","s1","s2","l3","s11","b3"],
+  C: ["b2","s12","l2","s8","s1","s2","l3","s11","b1","b3","d1","d2","d3","d4"],
+  D: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","d1","d2","d3"],
+  E: ["b1","b2","b3","v7","v3","v9","v10", "v13", "v14"],
+  F: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","l1","l5","l4"],
+  G: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","l1"],
+  H: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","l5","l4"],
+  I: ["b1","b2","b3","v7","v3","v9","v10","v12", "v13", "v14"],
+  J: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","b1"],
+  K: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","b1","d1","d4"],
+  L: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","b1","d1","d2","d3"],
+  M: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","b1","l1","l5","l4"],
+  N: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","b1","l1"],
+  O: ["v9","v1","v8","v2","b1","b2","b3"],
+  P: ["b2","s12","l2","s8","s1","s2","l3","s11","b3","b1","l5","l4"],
+  Q: ["b1","b2","b3","s7","l4","s9","l5","s3","s4","s5","s6","d1","d2","d3","d4"],
+  R: ["s7","l4","s9","l5","s3","d1","d2","d3"],
+  S: ["s7","l4","s9","l5","s3","l1","l2","l3"],
+  T: ["s7","l4","s9","l5","s3"],
+  U: ["b1","b2","b3","v9","v10","v7","v3","v11", "v13", "v14"],
+  V: ["s7","l4","s9","l5","s3","l1"],
+  W: ["s7","l4","s9","l5","s3","l2","l3"],
+  X: ["b1","b2","b3","s7","l4","s9","l5","s3","s4","s5","s6","l2","l3"],
+  Y: ["b1","b2","b3","s7","l4","s9","l5","s3","s4","s5","s6","d1","d4"],
+  Z: ["b1","b2","b3","s7","l4","s9","l5","s3","s4","s5","s6","d1","d2","d3"],
+  _: ["b1"],
+};
+// -------------------------------------------------
+
+const todosSegmentos = [...new Set(Object.values(mapaLetras).flat())];
+const pastaSegmentos = "./Segmentos/";
+const display = document.getElementById("display");
+let glowAtivo = false;
+let italicoAtivo = true;
+let mostrarApagados = true;
+
+let svgBase = {};
+
+async function carregarSegmentos() {
+  const promises = todosSegmentos.map(async seg => {
+    const resp = await fetch(`${pastaSegmentos}${seg}.svg`);
+    const svgTexto = await resp.text();
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgTexto, "image/svg+xml");
+    const svgElemento = svgDoc.documentElement;
+    svgBase[seg] = svgElemento;
+  });
+  await Promise.all(promises);
+}
+
+function aplicarFiltros() {
+  const cor = inputCor.value;
+  const rgb = parseInt(cor.slice(1), 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = rgb & 0xff;
+  const hue = Math.round(Math.atan2(Math.sqrt(3)*(g-b), 2*r - g - b)*(180/Math.PI));
+
+  for (const svg of display.querySelectorAll("svg")) {
+    const ativo = svg.classList.contains("ativo");
+    svg.style.opacity = ativo ? "1" : (mostrarApagados ? "0.1" : "0");
+    let glow = (glowAtivo && ativo) ? `drop-shadow(0 0 5px ${cor})` : "";
+    let skew = italicoAtivo ? "skewX(-8deg)" : "skewX(0deg)";
+    svg.style.filter = `invert(25%) sepia(100%) saturate(7000%) hue-rotate(${hue}deg) brightness(100%) contrast(100%) ${glow}`;
+    svg.style.transform = skew;
+  }
+}
+
+function esperar(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function mostrarTextoEmLinha(texto, intervalo = 500) {
+  texto = texto.toUpperCase();
+  display.innerHTML = "";
+
+  for (const letra of texto) {
+    if (letra === " ") {
+      await esperar(intervalo);
+      continue;
+    }
+
+    const segmentosAtivos = mapaLetras[letra];
+    if (!segmentosAtivos) continue;
+
+    const letraContainer = document.createElement("div");
+    letraContainer.classList.add("letraContainer");
+    display.appendChild(letraContainer);
+
+    // todos os segmentos (para suportar "apagados")
+    for (const seg of todosSegmentos) {
+      const original = svgBase[seg];
+      if (original) {
+        const clone = original.cloneNode(true);
+        if (segmentosAtivos.includes(seg)) clone.classList.add("ativo");
+        letraContainer.appendChild(clone);
+      }
+    }
+
+    aplicarFiltros();
+    await esperar(intervalo);
+    display.scrollLeft = display.scrollWidth;
+  }
+}
+
+// Configurações
+const inputTexto = document.getElementById("inputTexto");
+const inputIntervalo = document.getElementById("inputIntervalo");
+const inputCor = document.getElementById("inputCor");
+const btnGlow = document.getElementById("btnGlow");
+const btnItalico = document.getElementById("btnItalico");
+const btnAplicar = document.getElementById("btnAplicar");
+const btnToggleConfig = document.getElementById("btnToggleConfig");
+const btnMostrarApagados = document.getElementById("btnMostrarApagados");
+const config = document.getElementById("config");
+
+btnGlow.addEventListener("click", () => {
+  glowAtivo = !glowAtivo;
+  btnGlow.textContent = glowAtivo ? "Glow: ON" : "Glow: OFF";
+  aplicarFiltros();
+});
+
+btnItalico.addEventListener("click", () => {
+  italicoAtivo = !italicoAtivo;
+  btnItalico.textContent = italicoAtivo ? "Itálico: ON" : "Itálico: OFF";
+  aplicarFiltros();
+});
+
+btnMostrarApagados.addEventListener("click", () => {
+  mostrarApagados = !mostrarApagados;
+  btnMostrarApagados.textContent = mostrarApagados ? "Apagados: ON" : "Apagados: OFF";
+  aplicarFiltros();
+});
+
+btnAplicar.addEventListener("click", () => {
+  aplicarFiltros();
+  mostrarTextoEmLinha(inputTexto.value, parseInt(inputIntervalo.value));
+});
+
+btnToggleConfig.addEventListener("click", () => {
+  config.classList.toggle("hidden");
+});
+
+carregarSegmentos().then(() => {
+  aplicarFiltros();
+  mostrarTextoEmLinha(inputTexto.value, parseInt(inputIntervalo.value));
+});
+</script>
+</body>
+</html>
